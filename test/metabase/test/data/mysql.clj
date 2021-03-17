@@ -4,7 +4,8 @@
             [metabase.test.data.sql :as sql.tx]
             [metabase.test.data.sql-jdbc :as sql-jdbc.tx]
             [metabase.test.data.sql-jdbc.execute :as execute]
-            [metabase.test.data.sql-jdbc.load-data :as load-data]))
+            [metabase.test.data.sql-jdbc.load-data :as load-data]
+            [metabase.util :as u]))
 
 (sql-jdbc.tx/add-test-extensions! :mysql)
 
@@ -28,14 +29,17 @@
 
 (defmethod tx/dbdef->connection-details :mysql
   [_ context {:keys [database-name]}]
-  (merge
-   {:host (tx/db-test-env-var-or-throw :mysql :host "localhost")
-    :port (tx/db-test-env-var-or-throw :mysql :port 3306)
-    :user (tx/db-test-env-var :mysql :user "root")}
-   (when-let [password (tx/db-test-env-var :mysql :password)]
-     {:password password})
-   (when (= context :db)
-     {:db database-name})))
+
+  (do
+    (println (u/colorize 'yellow (str "In tx/dbdef->connection-details :mysql, host: " (System/getenv "MB_MYSQL_TEST_HOST"))))
+    (merge
+     {:host (tx/db-test-env-var-or-throw :mysql :host "localhost")
+      :port (tx/db-test-env-var-or-throw :mysql :port 3306)
+      :user (tx/db-test-env-var :mysql :user "root")}
+     (when-let [password (tx/db-test-env-var :mysql :password)]
+       {:password password})
+     (when (= context :db)
+       {:db database-name}))))
 
 (defmethod tx/aggregate-column-info :mysql
   ([driver ag-type]

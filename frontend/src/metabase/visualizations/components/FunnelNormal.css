@@ -1,6 +1,5 @@
 :local .Funnel {
   color: var(--color-text-medium);
-  height: 100%;
 }
 
 :local .FunnelStep {
